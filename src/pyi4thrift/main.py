@@ -1,13 +1,6 @@
-# coding: utf-8
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import argparse
 
-from thrift2pyi.convert import Thrift2pyi
+from pyi4thrift.convert import Thrift2pyi
 
 
 def main():

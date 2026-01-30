@@ -16,3 +16,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## v1.0.3
 - 支持 union
+
+## v2.0.0
+- 维护权转移与新包名：pyi4thrift
+- 仅支持 Python >= 3.9
+- packaging 迁移到 pyproject.toml + hatchling
+- src/ 目录结构

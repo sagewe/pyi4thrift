@@ -1,10 +1,3 @@
-# coding: utf-8
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
 import shutil
 
@@ -12,24 +5,20 @@ from collections import defaultdict
 
 import sys
 
-from six import u, string_types, PY2
 from pypeg2 import compose
 from thriftpy2 import load
 from thriftpy2.thrift import TType
 from yapf.yapflib.yapf_api import FormatCode
 
-from thrift2pyi.exceptions import Thrift2pyiException
-from thrift2pyi.peg import PYI, Struct, Init, Parameter, Annotations, Parameters, Annotation, Structs, \
+from pyi4thrift.exceptions import Thrift2pyiException
+from pyi4thrift.peg import PYI, Struct, Init, Parameter, Annotations, Parameters, Annotation, Structs, \
     Imports, Services, Modules, Service, Methods, Method, Enums, KeyValue, KeyValues, Enum, Exceptions, Exc, \
     Unions, Union, Consts, Const, FromImport, Module, ModuleAlias
 
 
 class Thrift2pyi(object):
     def __init__(self, filename, prefix, out):
-        if PY2:
-            self.thrift = load(filename.encode("utf-8"))
-        else:
-            self.thrift = load(filename)
+        self.thrift = load(filename)
         if not hasattr(self.thrift, "__thrift_meta__"):
             sys.exit(0)
         self.meta = self.thrift.__thrift_meta__
@@ -84,7 +73,7 @@ class Thrift2pyi(object):
                 self._imports["typing"].add("Set")
                 return "Set[%s]" % self._get_type(nest)
             elif thrift_type == TType.I32:
-                return u(nest.__name__)
+                return nest.__name__
             else:
                 raise Thrift2pyiException("do not type support %s" % thrift_type)
 
@@ -103,7 +92,7 @@ class Thrift2pyi(object):
             return "None"
         elif isinstance(v, int) or isinstance(v, float) or isinstance(v, list) or isinstance(v, dict):
             return str(v)
-        elif isinstance(v, string_types):
+        elif isinstance(v, str):
             return "'%s'" % v
         elif isinstance(v, tuple):
             return self._2v(v[1])
@@ -135,7 +124,7 @@ class Thrift2pyi(object):
 
     def _struct2pyi(self, struct):
         p_struct = Struct()
-        p_struct.name = u(struct.__name__)
+        p_struct.name = struct.__name__
         p_init = Init()
         p_init.params, p_struct.annotations = self._spec2params(struct.default_spec, struct.thrift_spec)
         p_struct.init = p_init
@@ -147,7 +136,7 @@ class Thrift2pyi(object):
 
     def _union2pyi(self, union):
         p_union = Union()
-        p_union.name = u(union.__name__)
+        p_union.name = union.__name__
         p_init = Init()
         p_init.params, p_union.annotations = self._spec2params(union.default_spec, union.thrift_spec)
         p_union.init = p_init
@@ -186,7 +175,7 @@ class Thrift2pyi(object):
 
     def _service2pyi(self, service):
         p_service = Service()
-        p_service.name = u(service.__name__)
+        p_service.name = service.__name__
         p_methods = Methods()
         for method in service.thrift_services:
             p_method = Method()
@@ -212,12 +201,12 @@ class Thrift2pyi(object):
 
         for k, v in enum._NAMES_TO_VALUES.items():
             p_kv = KeyValue()
-            p_kv.name = u(k)
+            p_kv.name = k
             p_kv.value = self._2v(v)
             p_kvs.append(p_kv)
 
         p_enum = Enum()
-        p_enum.name = u(enum.__name__)
+        p_enum.name = enum.__name__
         p_enum.kvs = p_kvs
 
         return p_enum
@@ -228,7 +217,7 @@ class Thrift2pyi(object):
 
     def _exc2pyi(self, exc):
         p_exc = Exc()
-        p_exc.name = u(exc.__name__)
+        p_exc.name = exc.__name__
         p_init = Init()
         p_init.params, p_exc.annotations = self._spec2params(exc.default_spec, exc.thrift_spec)
         p_exc.init = p_init
@@ -248,7 +237,7 @@ class Thrift2pyi(object):
             if k.startswith("__"):
                 continue
             kv = Const()
-            kv.name = u(k)
+            kv.name = k
             try:
                 kv.value = self._2v(v)
                 self.pyi.consts.append(kv)
