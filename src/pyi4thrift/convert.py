@@ -61,8 +61,19 @@ class Thrift2pyi(object):
                     return nest.__name__
                 else:
                     module = nest.__module__
-                    self._imports[self._module2package[module]].add(("%s_thrift" % module, module))
-                    return "%s.%s" % (module, nest.__name__)
+                    package = self._module2package.get(module)
+                    if package is None and module.endswith("_thrift"):
+                        package = self._module2package.get(module[:-7])
+                    if package is None:
+                        raise Thrift2pyiException("unknown include module %s" % module)
+                    if module.endswith("_thrift"):
+                        import_name = module
+                        import_alias = module[:-7]
+                    else:
+                        import_name = "%s_thrift" % module
+                        import_alias = module
+                    self._imports[package].add((import_name, import_alias))
+                    return "%s.%s" % (import_alias, nest.__name__)
             elif thrift_type == TType.LIST:
                 self._imports["typing"].add("List")
                 return "List[%s]" % self._get_type(nest)
@@ -152,7 +163,9 @@ class Thrift2pyi(object):
             module = thrift_file.split(os.sep)[-1].split(".")[0]
             rel_path = os.path.relpath(include.__thrift_file__, os.path.dirname(self.thrift.__thrift_file__))
             rel_dir = os.path.dirname(rel_path)
-            self._module2package[module] = "." + rel_dir.replace(".." + os.sep, "..").replace("." + os.sep, ".")
+            package = "." + rel_dir.replace(".." + os.sep, "..").replace("." + os.sep, ".")
+            self._module2package[module] = package
+            self._module2package["%s_thrift" % module] = package
 
             if not os.path.exists(rel_path):
                 Thrift2pyi(include.__thrift_file__, self.prefix, self.out).output()
