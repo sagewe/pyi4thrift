@@ -8,6 +8,20 @@ pyi4thrift tests/example.thrift
 
 pyi4thrift tests/src/example.thrift  -p tests/src -o tests/dest
 
+# Release
+This project uses GitHub Actions to build and publish releases via OIDC.
+
+Tag release:
+```
+git tag v2.0.0
+git push origin v2.0.0
+```
+
+Manual release:
+```
+Run the "Release" workflow in GitHub Actions.
+```
+
 See dir "tests" for details. 
 
 # Example
