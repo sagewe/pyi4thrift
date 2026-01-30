@@ -5,13 +5,12 @@ from collections import defaultdict
 
 import sys
 
-from pypeg2 import compose
 from thriftpy2 import load
 from thriftpy2.thrift import TType
 from yapf.yapflib.yapf_api import FormatCode
 
 from pyi4thrift.exceptions import Thrift2pyiException
-from pyi4thrift.peg import PYI, Struct, Init, Parameter, Annotations, Parameters, Annotation, Structs, \
+from pyi4thrift.peg import compose, PYI, Struct, Init, Parameter, Annotations, Parameters, Annotation, Structs, \
     Imports, Services, Modules, Service, Methods, Method, Enums, KeyValue, KeyValues, Enum, Exceptions, Exc, \
     Unions, Union, Consts, Const, FromImport, Module, ModuleAlias
 
@@ -64,6 +63,8 @@ class Thrift2pyi(object):
                     package = self._module2package.get(module)
                     if package is None and module.endswith("_thrift"):
                         package = self._module2package.get(module[:-7])
+                    if package is None and module.endswith("_thrift") and "." in module:
+                        package = self._module2package.get(module.split(".")[-1][:-7])
                     if package is None:
                         raise Thrift2pyiException("unknown include module %s" % module)
                     if module.endswith("_thrift"):

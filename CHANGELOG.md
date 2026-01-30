@@ -22,3 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - 仅支持 Python >= 3.9
 - packaging 迁移到 pyproject.toml + hatchling
 - src/ 目录结构
+
+## v2.1.0
+- 解析器切换为 Lark，移除 pypeg2 依赖
+- include 模块解析兼容性修复
